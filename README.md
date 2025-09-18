@@ -250,12 +250,6 @@ npm run seed       # Insert sample data
 
 This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
 
-## 📞 Support
-
-For support or to report issues:
-- **Phone**: 0930125249
-- **WhatsApp**: 963930125249
-- **Email**: [Email Address]
 
 ## 🔄 Future Updates
 

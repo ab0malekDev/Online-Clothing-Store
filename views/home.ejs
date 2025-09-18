@@ -1,0 +1,423 @@
+<%- include('partials/header') %>
+
+<div class="home-page">
+    <!-- القسم الرئيسي -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content text-center">
+                <h1 class="hero-title">لمسات بوتيك</h1>
+                <p class="hero-subtitle">بيع وتأجير بدلات الزفاف والسهرة والسوارية</p>
+                <div class="hero-actions">
+                    <a href="tel:<%= contactPhone %>" class="btn btn-lg contact-btn">
+                        <i class="fas fa-phone"></i>
+                        اتصل بنا
+                    </a>
+                    <a href="https://wa.me/<%= whatsappNumber %>" class="btn btn-lg whatsapp-btn" target="_blank">
+                        <i class="fab fa-whatsapp"></i>
+                        تواصل عبر الواتساب
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- الأقسام -->
+    <section class="categories-section">
+        <div class="container">
+            <h2 class="section-title text-center">الأقسام</h2>
+            <div class="row">
+                <% categories.forEach(function(category) { %>
+                    <div class="col-md-4 mb-4">
+                        <a href="/category/<%= category.slug %>" class="category-card">
+                            <div class="category-icon">
+                                <i class="<%= category.icon %>"></i>
+                            </div>
+                            <h3 class="category-name"><%= category.name %></h3>
+                            <p class="category-description"><%= category.description %></p>
+                        </a>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </section>
+
+    <!-- أحدث المنتجات -->
+    <section class="latest-products">
+        <div class="container">
+            <h2 class="section-title text-center">أحدث المنتجات</h2>
+            <div class="row">
+                <% products.forEach(function(product) { %>
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="product-card" style="cursor: pointer;"
+                             onclick="showProductModal('<%= encodeURIComponent(JSON.stringify(product)) %>')">
+                            <div class="product-image">
+                                <img src="<%= product.mainImage %>" alt="<%= product.name %>">
+                                <% if (!product.isAvailable) { %>
+                                    <div class="unavailable-overlay">
+                                        <span>غير متوفر</span>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="card-body">
+                                <div class="product-code"><%= product.productCode %></div>
+                                <h5 class="card-title"><%= product.name %></h5>
+                                <p class="card-text"><%= product.description %></p>
+                                <div class="product-footer">
+                                    <div class="price"><%= product.price %> ل.س</div>
+                                    <% if (product.isRental && product.rentalPrice) { %>
+                                        <div class="rental-price">
+                                            <span class="label">للإيجار:</span>
+                                            <%= product.rentalPrice %> ل.س
+                                        </div>
+                                    <% } %>
+                                    <button class="btn btn-order w-100 mt-3" onclick="handleOrder(this); event.stopPropagation();" data-product-id="<%= product._id %>">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        طلب المنتج
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+.hero-section {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, var(--bg-light) 0%, var(--white) 100%);
+    margin-bottom: 4rem;
+}
+
+.hero-title {
+    color: var(--primary-color);
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    color: var(--black);
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* تصميم الأزرار الجديد */
+.hero-actions .btn {
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    min-width: 200px;
+    justify-content: center;
+}
+
+.hero-actions .btn i {
+    font-size: 1.2rem;
+}
+
+.contact-btn {
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 15px rgba(233, 77, 137, 0.3);
+}
+
+.contact-btn:hover {
+    background: #d63f7a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(233, 77, 137, 0.4);
+}
+
+.whatsapp-btn {
+    background: var(--bg-light);
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.whatsapp-btn:hover {
+    background: var(--bg-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(233, 77, 137, 0.15);
+}
+
+.categories-section {
+    padding: 4rem 0;
+    background-color: var(--bg-lighter);
+    margin-bottom: 4rem;
+}
+
+.section-title {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 3rem;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 50%;
+    height: 3px;
+    background: linear-gradient(to right, var(--primary-color), var(--bg-color));
+    border-radius: 3px;
+}
+
+.category-card {
+    background: var(--white);
+    border-radius: 25px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(233, 77, 137, 0.1);
+    transition: all 0.3s ease;
+    display: block;
+    text-decoration: none;
+    height: 100%;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(233, 77, 137, 0.2);
+}
+
+.category-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--bg-light);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.category-card:hover .category-icon {
+    transform: scale(1.1);
+}
+
+.category-name {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.category-description {
+    color: var(--black);
+    opacity: 0.8;
+    margin: 0;
+}
+
+.product-card {
+    background: var(--white);
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(233, 77, 137, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(233, 77, 137, 0.2);
+}
+
+.product-image {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: white;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.1);
+}
+
+.unavailable-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.card-body {
+    padding: 1.5rem;
+    background: var(--white);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-code {
+    display: inline-block;
+    background: var(--bg-light);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.card-title {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.card-text {
+    color: var(--black);
+    margin-bottom: 1rem;
+    opacity: 0.8;
+    flex-grow: 1;
+}
+
+.product-footer {
+    margin-top: auto;
+}
+
+.price {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.rental-price {
+    color: var(--black);
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.rental-price .label {
+    font-weight: 600;
+}
+
+.btn-order {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-order:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 4rem 0;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+    }
+
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .product-image {
+        height: 300px;
+    }
+}
+</style>
+
+<!-- تضمين نافذة تفاصيل المنتج -->
+<%- include('partials/product-modal') %>
+
+<!-- تضمين ملف JavaScript للنافذة المنبثقة -->
+<script src="/js/product-modal.js"></script>
+
+<!-- تعريف متغيرات الاتصال ودوال المعالجة -->
+<script>
+const whatsappNumber = '<%= whatsappNumber %>';
+const contactPhone = '<%= contactPhone %>';
+
+// التحقق من حالة تسجيل الدخول ومعالجة الطلب
+async function handleOrder(button) {
+    const productId = button.dataset.productId;
+    
+    try {
+        // التحقق من حالة تسجيل الدخول
+        const response = await fetch('/api/auth/check', {
+            credentials: 'include' // مهم لإرسال الكوكيز مع الطلب
+        });
+        const data = await response.json();
+        
+        if (data.isAuthenticated) {
+            // إذا كان المستخدم مسجل دخول، قم بإنشاء الطلب
+            window.location.href = `/orders/create/${productId}`;
+        } else {
+            // إذا لم يكن مسجل دخول، قم بتوجيهه لصفحة تسجيل الدخول
+            window.location.href = `/auth/login?redirect=/orders/create/${productId}`;
+        }
+    } catch (error) {
+        console.error('Error checking auth status:', error);
+        alert('حدث خطأ أثناء معالجة الطلب. الرجاء المحاولة مرة أخرى.');
+    }
+}
+</script>
+
+<%- include('partials/footer') %>

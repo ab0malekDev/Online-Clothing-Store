@@ -1,0 +1,238 @@
+<%- include('partials/header') %>
+
+<div class="category-page">
+    <div class="container">
+        <!-- رأس القسم -->
+        <div class="category-header">
+            <h1 class="category-title">
+                <i class="<%= category.icon %>"></i>
+                <%= category.name %>
+            </h1>
+            <p class="category-description"><%= category.description %></p>
+        </div>
+
+        <!-- قائمة المنتجات -->
+        <div class="products-grid">
+            <div class="row">
+                <% if (products && products.length > 0) { %>
+                    <% products.forEach(function(product) { %>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="product-card" style="cursor: pointer;" 
+                                 onclick="showProductModal('<%= encodeURIComponent(JSON.stringify(product)) %>')">
+                                <div class="product-image">
+                                    <img src="<%= product.mainImage %>" alt="<%= product.name %>">
+                                    <% if (!product.isAvailable) { %>
+                                        <div class="unavailable-overlay">
+                                            <span>غير متوفر</span>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <div class="card-body">
+                                    <div class="product-code"><%= product.productCode %></div>
+                                    <h3 class="product-name"><%= product.name %></h3>
+                                    <p class="product-description"><%= product.description %></p>
+                                    <div class="product-footer">
+                                        <div class="price"><%= product.price %> ل.س</div>
+                                        <% if (product.isRental && product.rentalPrice) { %>
+                                            <div class="rental-price">
+                                                <span class="label">للإيجار:</span>
+                                                <%= product.rentalPrice %> ل.س
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-12">
+                        <div class="no-products">
+                            <i class="fas fa-box-open"></i>
+                            <p>لا يوجد منتجات في هذا القسم حالياً</p>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.category-page {
+    padding: 4rem 0;
+    background-color: var(--bg-light);
+    min-height: calc(100vh - 70px);
+}
+
+.category-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.category-title {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.category-title i {
+    font-size: 2rem;
+}
+
+.category-description {
+    color: #666;
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.product-card {
+    display: block;
+    text-decoration: none;
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(233, 77, 137, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(233, 77, 137, 0.2);
+}
+
+.product-image {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: white;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.1);
+}
+
+.unavailable-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.product-code {
+    display: inline-block;
+    background: var(--bg-light);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.product-name {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.product-description {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.product-footer {
+    margin-top: auto;
+}
+
+.price {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.rental-price {
+    color: #666;
+    font-size: 1rem;
+}
+
+.rental-price .label {
+    font-weight: 600;
+    margin-left: 0.25rem;
+}
+
+.no-products {
+    text-align: center;
+    padding: 4rem 0;
+    color: #666;
+}
+
+.no-products i {
+    font-size: 4rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.no-products p {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .category-page {
+        padding: 2rem 0;
+    }
+
+    .category-title {
+        font-size: 2rem;
+    }
+
+    .product-image {
+        height: 300px;
+    }
+}
+</style>
+
+<!-- تضمين نافذة تفاصيل المنتج -->
+<%- include('partials/product-modal') %>
+
+<!-- تضمين ملف JavaScript للنافذة المنبثقة -->
+<script src="/js/product-modal.js"></script>
+
+<!-- تعريف متغيرات الاتصال -->
+<script>
+const whatsappNumber = '<%= whatsappNumber %>';
+const contactPhone = '<%= contactPhone %>';
+</script>
+
+<%- include('partials/footer') %>

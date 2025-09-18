@@ -1,0 +1,368 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-page">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">إدارة المستخدمين</h1>
+            <button type="button" class="btn btn-manage-users" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                <i class="fas fa-user-plus"></i>
+                إضافة مستخدم جديد
+            </button>
+        </div>
+
+        <!-- قائمة المستخدمين -->
+        <div class="users-list">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>اسم المستخدم</th>
+                            <th>الصلاحية</th>
+                            <th>الحالة</th>
+                            <th>تاريخ الإنشاء</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(function(user) { %>
+                            <tr>
+                                <td><%= user.username %></td>
+                                <td>
+                                    <span class="badge <%= user.role === 'owner' ? 'bg-danger' : 'bg-primary' %>">
+                                        <%= user.role === 'owner' ? 'مالك' : 'مدير' %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge <%= user.isActive ? 'bg-success' : 'bg-secondary' %>">
+                                        <%= user.isActive ? 'نشط' : 'غير نشط' %>
+                                    </span>
+                                </td>
+                                <td><%= new Date(user.createdAt).toLocaleDateString('ar-SA') %></td>
+                                <td>
+                                    <% if (user.role !== 'owner') { %>
+                                        <div class="action-buttons">
+                                            <button class="btn-action edit-user" 
+                                                    data-id="<%= user._id %>"
+                                                    data-username="<%= user.username %>"
+                                                    data-is-active="<%= user.isActive %>">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn-action delete-user" 
+                                                    data-id="<%= user._id %>">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة إضافة مستخدم -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">إضافة مستخدم جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/dashboard/users" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">البريد الإلكتروني</label>
+                        <input type="email" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">كلمة المرور</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="isActive" name="isActive" checked>
+                        <label class="form-check-label" for="isActive">نشط</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                        إلغاء
+                    </button>
+                    <button type="submit" class="btn btn-manage-users">
+                        <i class="fas fa-check"></i>
+                        إضافة
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة تعديل مستخدم -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تعديل مستخدم</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editUserForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editUsername" class="form-label">البريد الإلكتروني</label>
+                        <input type="email" class="form-control" id="editUsername" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPassword" class="form-label">كلمة المرور الجديدة (اختياري)</label>
+                        <input type="password" class="form-control" id="editPassword" name="password">
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="editIsActive" name="isActive">
+                        <label class="form-check-label" for="editIsActive">نشط</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                        إلغاء
+                    </button>
+                    <button type="submit" class="btn btn-manage-users">
+                        <i class="fas fa-check"></i>
+                        حفظ التغييرات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-page {
+    padding: 2rem 0;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.dashboard-title {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.btn-manage-users {
+    background: linear-gradient(45deg, #0088ff, #0055ff);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 136, 255, 0.2);
+}
+
+.btn-manage-users:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 136, 255, 0.3);
+    color: white;
+    background: linear-gradient(45deg, #0055ff, #0088ff);
+}
+
+.btn-manage-users i {
+    font-size: 1.2rem;
+}
+
+.btn-cancel {
+    background: linear-gradient(45deg, #9e9e9e, #757575);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(158, 158, 158, 0.2);
+}
+
+.btn-cancel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(158, 158, 158, 0.3);
+    color: white;
+    background: linear-gradient(45deg, #757575, #9e9e9e);
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+}
+
+.modal-footer .btn {
+    flex: 1;
+    justify-content: center;
+}
+
+.table {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(233, 77, 137, 0.1);
+}
+
+.table th {
+    background-color: var(--bg-light);
+    color: var(--primary-color);
+    font-weight: 600;
+    border: none;
+}
+
+.table td {
+    vertical-align: middle;
+    border-color: var(--bg-light);
+}
+
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    font-weight: 500;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.btn-action.edit-user {
+    background: linear-gradient(45deg, #ffc107, #ff9800);
+    box-shadow: 0 2px 10px rgba(255, 193, 7, 0.2);
+}
+
+.btn-action.delete-user {
+    background: linear-gradient(45deg, #ff4081, #e91e63);
+    box-shadow: 0 2px 10px rgba(233, 30, 99, 0.2);
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+}
+
+.btn-action.edit-user:hover {
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+.btn-action.delete-user:hover {
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+}
+
+.btn-action i {
+    font-size: 1rem;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: var(--bg-light);
+    border-bottom: none;
+    padding: 1.5rem;
+}
+
+.modal-title {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.form-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.form-control {
+    border: 2px solid var(--bg-light);
+    border-radius: 10px;
+    padding: 0.75rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(233, 77, 137, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // تحديث نافذة التعديل
+    document.querySelectorAll('.edit-user').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.dataset.id;
+            const username = this.dataset.username;
+            const isActive = this.dataset.isActive === 'true';
+            
+            document.getElementById('editUserForm').action = `/dashboard/users/${userId}?_method=PUT`;
+            document.getElementById('editUsername').value = username;
+            document.getElementById('editPassword').value = '';
+            document.getElementById('editIsActive').checked = isActive;
+            
+            new bootstrap.Modal(document.getElementById('editUserModal')).show();
+        });
+    });
+
+    // حذف مستخدم
+    document.querySelectorAll('.delete-user').forEach(button => {
+        button.addEventListener('click', async function() {
+            const userId = this.dataset.id;
+            
+            if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
+                try {
+                    const response = await fetch(`/dashboard/users/${userId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('حدث خطأ في حذف المستخدم');
+                    }
+                } catch (error) {
+                    console.error('خطأ:', error);
+                    alert('حدث خطأ في حذف المستخدم');
+                }
+            }
+        });
+    });
+});
+</script>
+
+<%- include('../partials/footer') %>

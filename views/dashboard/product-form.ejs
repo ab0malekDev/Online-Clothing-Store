@@ -1,0 +1,626 @@
+<%- include('../partials/header') %>
+
+<div class="product-form-page">
+    <div class="container">
+        <div class="form-card">
+            <h1 class="form-title">
+                <%= product ? 'تعديل منتج' : 'إضافة منتج جديد' %>
+            </h1>
+
+            <form action="<%= product ? `/dashboard/products/${product._id}?_method=PUT` : '/dashboard/products' %>" 
+                  method="POST" 
+                  enctype="multipart/form-data"
+                  class="product-form">
+                
+                <!-- معلومات المنتج الأساسية -->
+                <div class="form-section">
+                    <h3 class="section-title">المعلومات الأساسية</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="name">اسم المنتج</label>
+                                <input type="text" 
+                                       class="form-control custom-input" 
+                                       id="name" 
+                                       name="name" 
+                                       value="<%= product ? product.name : '' %>"
+                                       required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="category">القسم</label>
+                                <select class="form-control custom-select" id="category" name="category" required>
+                                    <option value="">اختر القسم</option>
+                                    <% categories.forEach(function(category) { %>
+                                        <option value="<%= category._id %>" 
+                                                <%= product && product.category && 
+                                                    product.category._id.toString() === category._id.toString() ? 'selected' : '' %>>
+                                            <%= category.name %>
+                                        </option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">وصف المنتج</label>
+                        <textarea class="form-control custom-textarea" 
+                                  id="description" 
+                                  name="description" 
+                                  rows="4"><%= product ? product.description : '' %></textarea>
+                    </div>
+                </div>
+
+                <!-- الأسعار -->
+                <div class="form-section">
+                    <h3 class="section-title">الأسعار</h3>
+                    <div class="prices-container">
+                        <div class="price-group">
+                            <div class="form-group mb-4">
+                                <label for="price">السعر</label>
+                                <div class="price-input-container">
+                                    <input type="number"
+                                           class="form-control custom-input"
+                                           id="price"
+                                           name="price"
+                                           value="<%= product ? product.price : '' %>"
+                                           min="0"
+                                           required>
+                                    <div class="currency-label">ل.س</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rental-group">
+                            <div class="switch-container mb-4">
+                                <div class="switch-label">متاح للإيجار</div>
+                                <label class="switch">
+                                    <input type="checkbox"
+                                           id="isRental"
+                                           name="isRental"
+                                           <%= product && product.isRental ? 'checked' : '' %>>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="rental-price-input" style="display: none;">
+                                <div class="form-group">
+                                    <label for="rentalPrice">سعر الإيجار</label>
+                                    <div class="price-input-container">
+                                        <input type="number"
+                                               class="form-control custom-input"
+                                               id="rentalPrice"
+                                               name="rentalPrice"
+                                               value="<%= product ? product.rentalPrice : '' %>"
+                                               min="0">
+                                        <div class="currency-label">ل.س</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الصور -->
+                <div class="form-section">
+                    <h3 class="section-title">الصور</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>الصورة الرئيسية</label>
+                                <div class="custom-file-container">
+                                    <input type="file" 
+                                           class="custom-file-input" 
+                                           id="mainImage" 
+                                           name="mainImage"
+                                           accept="image/*"
+                                           <%= product ? '' : 'required' %>>
+                                    <label class="custom-file-label" for="mainImage">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>اختر صورة</span>
+                                    </label>
+                                </div>
+                                <% if (product && product.mainImage) { %>
+                                    <div class="current-image mt-3">
+                                        <img src="<%= product.mainImage %>" alt="الصورة الحالية" class="img-thumbnail">
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>صور إضافية</label>
+                                <div class="custom-file-container">
+                                    <input type="file" 
+                                           class="custom-file-input" 
+                                           id="images" 
+                                           name="images"
+                                           accept="image/*"
+                                           multiple>
+                                    <label class="custom-file-label" for="images">
+                                        <i class="fas fa-images"></i>
+                                        <span>اختر صور</span>
+                                    </label>
+                                </div>
+                                <% if (product && product.images && product.images.length > 0) { %>
+                                    <div class="current-images mt-3">
+                                        <div class="row">
+                                            <% product.images.forEach(function(image) { %>
+                                                <div class="col-4 mb-2">
+                                                    <div class="image-container">
+                                                        <img src="<%= image.url %>" alt="" class="img-thumbnail">
+                                                        <button type="button" 
+                                                                class="btn btn-sm btn-danger delete-image"
+                                                                data-product-id="<%= product._id %>"
+                                                                data-image-id="<%= image._id %>">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الحالة -->
+                <div class="form-section">
+                    <h3 class="section-title">الحالة</h3>
+                    <div class="switch-container">
+                        <div class="switch-label">متوفر للبيع</div>
+                        <label class="switch">
+                            <input type="checkbox"
+                                   id="isAvailable"
+                                   name="isAvailable"
+                                   <%= !product || product.isAvailable ? 'checked' : '' %>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <small class="text-muted d-block mt-2 mr-4">
+                        <i class="fas fa-info-circle"></i>
+                        عند إلغاء التحديد، سيظهر المنتج كغير متوفر
+                    </small>
+                </div>
+
+                <!-- أزرار التحكم -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        <%= product ? 'حفظ التغييرات' : 'إضافة المنتج' %>
+                    </button>
+                    <a href="/dashboard" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        إلغاء
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.product-form-page {
+    padding: 2rem 0;
+    background-color: var(--bg-light);
+    min-height: calc(100vh - 70px);
+}
+
+.form-card {
+    background: white;
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(233, 77, 137, 0.1);
+}
+
+.form-title {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.form-section {
+    background: var(--bg-light);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    color: #666;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.custom-input,
+.custom-textarea {
+    width: 100%;
+    height: 50px;
+    border: 2px solid #FFE4E0;
+    border-radius: 15px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+.custom-select {
+    width: 100%;
+    height: 50px;
+    border: 2px solid #FFE4E0;
+    border-radius: 15px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: white;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8.825L1.175 4 2.238 2.938 6 6.7l3.763-3.763L10.825 4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 1rem center;
+    padding-left: 2.5rem;
+}
+
+.custom-textarea {
+    height: auto;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.custom-input:focus,
+.custom-select:focus,
+.custom-textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(233, 77, 137, 0.25);
+    outline: none;
+}
+
+.custom-select:hover {
+    border-color: var(--primary-color);
+}
+
+/* تصميم حقول السعر */
+.price-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.price-input-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: white;
+    border: 2px solid #FFE4E0;
+    border-radius: 15px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.price-input-container:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(233, 77, 137, 0.25);
+}
+
+.price-input-container .custom-input {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: left;
+    padding: 0;
+    direction: ltr;
+    min-width: 0;
+}
+
+.price-input-container .custom-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.price-input-container .custom-input::-webkit-inner-spin-button,
+.price-input-container .custom-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.price-input-container .custom-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.currency-label {
+    color: #666;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    background: #FFE4E0;
+    border-radius: 8px;
+    white-space: nowrap;
+    min-width: 55px;
+    text-align: center;
+}
+
+/* تصميم مفتاح التبديل */
+.switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem;
+    background: white;
+    border-radius: 15px;
+    border: 2px solid #FFE4E0;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.switch-container:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(233, 77, 137, 0.1);
+}
+
+.switch-label {
+    font-weight: 600;
+    color: #666;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #FFE4E0;
+    transition: .3s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    right: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+input:checked + .slider {
+    background: linear-gradient(45deg, #0088ff, #0055ff);
+}
+
+input:checked + .slider:before {
+    transform: translateX(-24px);
+}
+
+.switch:hover .slider:before {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.text-muted {
+    font-size: 0.9rem;
+    color: #999 !important;
+}
+
+.text-muted i {
+    margin-left: 0.5rem;
+    color: var(--primary-color);
+}
+
+/* تصميم حقول الصور */
+.custom-file-container {
+    position: relative;
+    background-color: white;
+    border: 2px dashed #FFE4E0;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.custom-file-container:hover {
+    border-color: var(--primary-color);
+}
+
+.custom-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.custom-file-label {
+    margin: 0;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.custom-file-label i {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.current-image img,
+.current-images img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.image-container {
+    position: relative;
+}
+
+.delete-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* تصميم الأزرار */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* تصميم متجاوب */
+@media (max-width: 768px) {
+    .form-card {
+        padding: 1.5rem;
+    }
+
+    .form-section {
+        padding: 1.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+// تفعيل/تعطيل حقل سعر الإيجار
+const isRentalCheckbox = document.getElementById('isRental');
+const rentalPriceInput = document.querySelector('.rental-price-input');
+
+function toggleRentalPrice() {
+    rentalPriceInput.style.display = isRentalCheckbox.checked ? 'block' : 'none';
+}
+
+isRentalCheckbox.addEventListener('change', toggleRentalPrice);
+toggleRentalPrice();
+
+// تحديث اسم الملف المختار
+document.querySelectorAll('.custom-file-input').forEach(input => {
+    input.addEventListener('change', function(e) {
+        const fileName = Array.from(this.files)
+            .map(file => file.name)
+            .join(', ');
+        const label = this.closest('.custom-file-container')
+            .querySelector('.custom-file-label span');
+        label.textContent = fileName || 'اختر صورة';
+    });
+});
+
+// حذف الصور
+document.querySelectorAll('.delete-image').forEach(button => {
+    button.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const productId = this.dataset.productId;
+        const imageId = this.dataset.imageId;
+        const imageContainer = this.closest('.col-4');
+        
+        if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
+            try {
+                const response = await fetch(`/dashboard/products/images/${productId}/${imageId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    imageContainer.remove();
+                } else {
+                    alert('حدث خطأ في حذف الصورة');
+                }
+            } catch (error) {
+                console.error('خطأ في حذف الصورة:', error);
+                alert('حدث خطأ في حذف الصورة');
+            }
+        }
+    });
+});
+</script>
+
+<%- include('../partials/footer') %>

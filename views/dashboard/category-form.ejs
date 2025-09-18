@@ -1,0 +1,175 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h3 class="card-title text-center mb-0">
+                        <%= category ? 'تعديل قسم' : 'إضافة قسم جديد' %>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form action="<%= category ? `/dashboard/categories/${category._id}?_method=PUT` : '/dashboard/categories' %>" 
+                          method="POST"
+                          enctype="multipart/form-data">
+                        
+                        <!-- اسم القسم -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">اسم القسم</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="name" 
+                                   name="name"
+                                   value="<%= category ? category.name : '' %>"
+                                   required>
+                        </div>
+
+                        <!-- وصف القسم -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">وصف القسم</label>
+                            <textarea class="form-control" 
+                                      id="description" 
+                                      name="description" 
+                                      rows="3"><%= category ? category.description : '' %></textarea>
+                        </div>
+
+                        <!-- أيقونة القسم -->
+                        <div class="mb-3">
+                            <label for="icon" class="form-label">أيقونة القسم</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="icon" 
+                                   name="icon"
+                                   value="<%= category ? category.icon : '' %>"
+                                   placeholder="مثال: fas fa-tshirt"
+                                   required>
+                            <div class="form-text">
+                                يمكنك اختيار الأيقونة من 
+                                <a href="https://fontawesome.com/icons" target="_blank">Font Awesome</a>
+                            </div>
+                        </div>
+
+                        <!-- ترتيب القسم -->
+                        <div class="mb-3">
+                            <label for="order" class="form-label">ترتيب القسم</label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="order" 
+                                   name="order"
+                                   value="<%= category ? category.order : '' %>"
+                                   min="0">
+                            <div class="form-text">
+                                يتم ترتيب الأقسام تصاعدياً حسب هذا الرقم
+                            </div>
+                        </div>
+
+                        <!-- صورة القسم -->
+                        <div class="mb-3">
+                            <label for="image" class="form-label">صورة القسم</label>
+                            <input type="file" 
+                                   class="form-control" 
+                                   id="image" 
+                                   name="image"
+                                   accept="image/*">
+                            <% if (category && category.image) { %>
+                                <div class="mt-2">
+                                    <img src="<%= category.image %>" 
+                                         alt="<%= category.name %>"
+                                         class="img-thumbnail"
+                                         style="max-width: 200px;">
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- أزرار التحكم -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="/dashboard" class="btn btn-secondary">
+                                إلغاء
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <%= category ? 'تحديث القسم' : 'إضافة القسم' %>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(233, 77, 137, 0.1);
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.card-title {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.form-label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.form-control {
+    border-radius: 10px;
+    border: 1px solid rgba(233, 77, 137, 0.2);
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(233, 77, 137, 0.25);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #d63f7a;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-text a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.form-text a:hover {
+    text-decoration: underline;
+}
+
+.img-thumbnail {
+    border-radius: 10px;
+    border: 1px solid rgba(233, 77, 137, 0.2);
+}
+</style>
+
+<%- include('../partials/footer') %>

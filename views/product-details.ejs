@@ -1,0 +1,395 @@
+<%- include('partials/header') %>
+
+<div class="product-details-page">
+    <div class="container">
+        <div class="row">
+            <!-- صور المنتج -->
+            <div class="col-lg-6">
+                <div class="product-gallery">
+                    <div class="main-image">
+                        <img src="<%= product.mainImage %>" alt="<%= product.name %>" id="mainImage">
+                    </div>
+                    <% if (product.images && product.images.length > 0) { %>
+                        <div class="thumbnails">
+                            <img src="<%= product.mainImage %>" 
+                                 alt="<%= product.name %>" 
+                                 class="thumbnail active"
+                                 onclick="changeMainImage(this.src)">
+                            <% product.images.forEach(function(image) { %>
+                                <img src="<%= image.url %>" 
+                                     alt="<%= product.name %>" 
+                                     class="thumbnail"
+                                     onclick="changeMainImage(this.src)">
+                            <% }); %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- تفاصيل المنتج -->
+            <div class="col-lg-6">
+                <div class="product-info">
+                    <div class="product-header">
+                        <h1 class="product-title"><%= product.name %></h1>
+                        <span class="product-code"><%= product.productCode %></span>
+                    </div>
+
+                    <div class="product-category">
+                        <i class="<%= product.category.icon %>"></i>
+                        <%= product.category.name %>
+                    </div>
+
+                    <div class="product-description">
+                        <%= product.description %>
+                    </div>
+
+                    <div class="product-pricing">
+                        <div class="price">
+                            <span class="label">السعر:</span>
+                            <span class="amount"><%= product.price %></span>
+                            <span class="currency">ل.س</span>
+                        </div>
+                        <% if (product.isRental && product.rentalPrice) { %>
+                            <div class="rental-price">
+                                <span class="label">سعر الإيجار:</span>
+                                <span class="amount"><%= product.rentalPrice %></span>
+                                <span class="currency">ل.س</span>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <div class="product-status">
+                        <span class="status-badge <%= product.isAvailable ? 'available' : 'unavailable' %>">
+                            <%= product.isAvailable ? 'متوفر' : 'غير متوفر' %>
+                        </span>
+                    </div>
+
+                    <div class="product-actions">
+                        <button class="btn btn-order" onclick="handleOrder(this)" data-product-id="<%= product._id %>">
+                            <i class="fas fa-shopping-cart"></i>
+                            طلب المنتج
+                        </button>
+                        <a href="https://wa.me/<%= whatsappNumber %>?text=استفسار عن <%= product.name %> (الرمز: <%= product.productCode %>)"
+                           class="btn btn-whatsapp"
+                           target="_blank">
+                            <i class="fab fa-whatsapp"></i>
+                            استفسار عبر الواتساب
+                        </a>
+                        <a href="tel:<%= contactPhone %>" class="btn btn-call">
+                            <i class="fas fa-phone"></i>
+                            اتصل بنا
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- منتجات مشابهة -->
+        <% if (relatedProducts && relatedProducts.length > 0) { %>
+            <div class="related-products">
+                <h2 class="section-title">منتجات مشابهة</h2>
+                <div class="row">
+                    <% relatedProducts.forEach(function(relatedProduct) { %>
+                        <div class="col-md-4">
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="<%= relatedProduct.mainImage %>" alt="<%= relatedProduct.name %>">
+                                    <% if (!relatedProduct.isAvailable) { %>
+                                        <div class="unavailable-overlay">
+                                            <span>غير متوفر</span>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <div class="card-body">
+                                    <div class="product-code"><%= relatedProduct.productCode %></div>
+                                    <h5 class="card-title"><%= relatedProduct.name %></h5>
+                                    <p class="card-text"><%= relatedProduct.description %></p>
+                                    <div class="product-footer">
+                                        <div class="price"><%= relatedProduct.price %> ل.س</div>
+                                        <% if (relatedProduct.isRental && relatedProduct.rentalPrice) { %>
+                                            <div class="rental-price">
+                                                <span class="label">للإيجار:</span>
+                                                <%= relatedProduct.rentalPrice %> ل.س
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<style>
+.product-details-page {
+    padding: 4rem 0;
+    background-color: var(--bg-light);
+}
+
+.product-gallery {
+    background: white;
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(233, 77, 137, 0.1);
+}
+
+.main-image {
+    width: 100%;
+    height: 500px;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.main-image img:hover {
+    transform: scale(1.05);
+}
+
+.thumbnails {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.thumbnail:hover {
+    transform: translateY(-3px);
+}
+
+.thumbnail.active {
+    border-color: var(--primary-color);
+}
+
+.product-info {
+    background: white;
+    border-radius: 25px;
+    padding: 2rem;
+    height: 100%;
+    box-shadow: 0 5px 20px rgba(233, 77, 137, 0.1);
+}
+
+.product-header {
+    margin-bottom: 1.5rem;
+}
+
+.product-title {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.product-code {
+    display: inline-block;
+    background: var(--bg-light);
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.product-category {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.product-description {
+    color: #666;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.product-pricing {
+    margin-bottom: 2rem;
+}
+
+.price, .rental-price {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.price .label, .rental-price .label {
+    color: #666;
+    font-size: 1.1rem;
+    margin-left: 0.5rem;
+}
+
+.price .amount, .rental-price .amount {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.currency {
+    color: #666;
+    font-size: 1.1rem;
+    margin-right: 0.5rem;
+}
+
+.product-status {
+    margin-bottom: 2rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.status-badge.available {
+    background-color: #E8F5E9;
+    color: #388E3C;
+}
+
+.status-badge.unavailable {
+    background-color: #FFEBEE;
+    color: #D32F2F;
+}
+
+.product-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-order, .btn-whatsapp, .btn-call {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-order {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-order:hover {
+    background-color: #45a049;
+    transform: translateY(-3px);
+    color: white;
+}
+
+.btn-whatsapp {
+    background-color: #25D366;
+    color: white;
+}
+
+.btn-call {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-whatsapp:hover, .btn-call:hover {
+    transform: translateY(-3px);
+    color: white;
+}
+
+.related-products {
+    margin-top: 4rem;
+}
+
+.section-title {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .product-details-page {
+        padding: 2rem 0;
+    }
+
+    .main-image {
+        height: 300px;
+    }
+
+    .product-info {
+        margin-top: 2rem;
+    }
+
+    .product-title {
+        font-size: 1.5rem;
+    }
+
+    .product-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+function changeMainImage(src) {
+    const mainImage = document.getElementById('mainImage');
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    
+    mainImage.src = src;
+    
+    thumbnails.forEach(thumb => {
+        thumb.classList.remove('active');
+        if (thumb.src === src) {
+            thumb.classList.add('active');
+        }
+    });
+}
+
+// التحقق من حالة تسجيل الدخول ومعالجة الطلب
+async function handleOrder(button) {
+    const productId = button.dataset.productId;
+    
+    try {
+        // التحقق من حالة تسجيل الدخول
+        const response = await fetch('/api/auth/check', {
+            credentials: 'include' // مهم لإرسال الكوكيز مع الطلب
+        });
+        const data = await response.json();
+        
+        if (data.isAuthenticated) {
+            // إذا كان المستخدم مسجل دخول، قم بإنشاء الطلب
+            window.location.href = `/orders/create/${productId}`;
+        } else {
+            // إذا لم يكن مسجل دخول، قم بتوجيهه لصفحة تسجيل الدخول
+            window.location.href = `/auth/login?redirect=/orders/create/${productId}`;
+        }
+    } catch (error) {
+        console.error('Error checking auth status:', error);
+        alert('حدث خطأ أثناء معالجة الطلب. الرجاء المحاولة مرة أخرى.');
+    }
+}
+</script>
+
+<%- include('partials/footer') %>

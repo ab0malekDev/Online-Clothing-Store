@@ -1,0 +1,212 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">إدارة الأقسام</h2>
+        <a href="/dashboard/categories/add" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            إضافة قسم جديد
+        </a>
+    </div>
+
+    <div class="row">
+        <% if (categories && categories.length > 0) { %>
+            <% categories.forEach(category => { %>
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white d-flex align-items-center">
+                            <i class="<%= category.icon %> me-2 text-primary"></i>
+                            <h5 class="card-title mb-0"><%= category.name %></h5>
+                        </div>
+                        <% if (category.image) { %>
+                            <img src="<%= category.image %>" 
+                                 class="card-img-top category-image" 
+                                 alt="<%= category.name %>">
+                        <% } %>
+                        <div class="card-body">
+                            <% if (category.description) { %>
+                                <p class="card-text"><%= category.description %></p>
+                            <% } %>
+                            <div class="d-flex align-items-center mt-2">
+                                <span class="badge bg-light text-dark me-2">
+                                    <i class="fas fa-sort-numeric-down me-1"></i>
+                                    الترتيب: <%= category.order %>
+                                </span>
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-link me-1"></i>
+                                    <%= category.slug %>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="/dashboard/categories/<%= category._id %>/edit" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                    تعديل
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger delete-category"
+                                        data-id="<%= category._id %>"
+                                        data-name="<%= category.name %>">
+                                    <i class="fas fa-trash-alt"></i>
+                                    حذف
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    لا يوجد أقسام حالياً
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- نافذة تأكيد الحذف -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                هل أنت متأكد من حذف القسم "<span id="categoryName"></span>"؟
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">حذف</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(233, 77, 137, 0.1);
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.card-title {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.category-image {
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid rgba(233, 77, 137, 0.1);
+}
+
+.card-footer {
+    border-top: 1px solid rgba(233, 77, 137, 0.1);
+    border-radius: 0 0 15px 15px !important;
+}
+
+.badge {
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 15px;
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(233, 77, 137, 0.1);
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(233, 77, 137, 0.1);
+    border-radius: 0 0 15px 15px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteCategoryModal'));
+    let categoryToDelete = null;
+
+    // عند الضغط على زر الحذف
+    document.querySelectorAll('.delete-category').forEach(button => {
+        button.addEventListener('click', function() {
+            categoryToDelete = this.dataset.id;
+            document.getElementById('categoryName').textContent = this.dataset.name;
+            deleteModal.show();
+        });
+    });
+
+    // عند تأكيد الحذف
+    document.getElementById('confirmDelete').addEventListener('click', async function() {
+        if (!categoryToDelete) return;
+
+        try {
+            const response = await fetch(`/dashboard/categories/${categoryToDelete}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // إخفاء النافذة وتحديث الصفحة
+                deleteModal.hide();
+                showMessage('success', 'تم حذف القسم بنجاح');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                throw new Error(data.message || 'حدث خطأ في حذف القسم');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showMessage('error', error.message);
+            deleteModal.hide();
+        }
+    });
+
+    // دالة لعرض الرسائل
+    function showMessage(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+        alertDiv.style.zIndex = '1050';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+        setTimeout(() => alertDiv.remove(), 3000);
+    }
+});
+</script>
+
+<%- include('../partials/footer') %>

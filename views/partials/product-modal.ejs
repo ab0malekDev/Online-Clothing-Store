@@ -1,0 +1,249 @@
+<!-- نافذة تفاصيل المنتج -->
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- صور المنتج -->
+                    <div class="col-md-8">
+                        <div class="product-gallery">
+                            <div class="main-image">
+                                <img src="" alt="" id="modalMainImage">
+                            </div>
+                            <div class="thumbnails" id="modalThumbnails"></div>
+                        </div>
+                    </div>
+                    <!-- تفاصيل المنتج -->
+                    <div class="col-md-4">
+                        <div class="product-info">
+                            <div class="product-code mb-2"></div>
+                            <div class="product-category mb-3"></div>
+                            <div class="product-description mb-4"></div>
+                            <div class="product-pricing mb-4">
+                                <div class="price mb-2"></div>
+                                <div class="rental-price"></div>
+                            </div>
+                            <div class="product-status mb-4"></div>
+                            <div class="product-actions">
+                                <button class="btn btn-order w-100 mb-2" onclick="handleOrder(this)" data-product-id="">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    طلب المنتج
+                                </button>
+                                <a href="" class="btn btn-whatsapp w-100 mb-2" target="_blank">
+                                    <i class="fab fa-whatsapp"></i>
+                                    استفسار عبر الواتساب
+                                </a>
+                                <a href="" class="btn btn-call w-100">
+                                    <i class="fas fa-phone"></i>
+                                    اتصل بنا
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.modal-content {
+    border: none;
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: var(--bg-light);
+    border-bottom: none;
+    padding: 1.5rem;
+}
+
+.modal-title {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.product-gallery {
+    margin-bottom: 1.5rem;
+}
+
+.main-image {
+    width: 100%;
+    min-height: 70vh;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+}
+
+.main-image img {
+    max-width: 100%;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+}
+
+.thumbnails {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: contain;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.thumbnail:hover,
+.thumbnail.active {
+    border-color: var(--primary-color);
+}
+
+.product-code {
+    display: inline-block;
+    background: var(--bg-light);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.product-category {
+    color: #666;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.product-category i {
+    color: var(--primary-color);
+}
+
+.product-description {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.price {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.rental-price {
+    color: #666;
+    font-size: 1rem;
+}
+
+.rental-price .label {
+    font-weight: 600;
+    margin-left: 0.25rem;
+}
+
+.product-status .status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.status-badge.available {
+    background-color: #E8F5E9;
+    color: #388E3C;
+}
+
+.status-badge.unavailable {
+    background-color: #FFEBEE;
+    color: #D32F2F;
+}
+
+.btn-whatsapp,
+.btn-call {
+    padding: 0.75rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-whatsapp {
+    background-color: #25D366;
+    color: white;
+}
+
+.btn-call {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-order,
+.btn-whatsapp,
+.btn-call {
+    padding: 0.75rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-order {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-order:hover {
+    background-color: #45a049;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-whatsapp:hover,
+.btn-call:hover {
+    transform: translateY(-2px);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    .main-image {
+        min-height: 50vh;
+    }
+
+    .main-image img {
+        max-height: 50vh;
+    }
+}
+</style>

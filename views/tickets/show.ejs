@@ -1,0 +1,895 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <!-- المحادثة -->
+    <div class="chat-section mb-4">
+        <div class="section-header d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <h5 class="mb-0">المحادثة</h5>
+                <span class="ticket-number">#<%= ticket._id.toString().slice(-6).toUpperCase() %></span>
+            </div>
+            <div class="d-flex gap-2">
+                <span class="status-badge <%= ticket.replyStatus === 'waiting_support' ? 'warning' : 'info' %>">
+                    <%= ticket.replyStatus === 'waiting_support' ? 'بانتظار رد الدعم الفني' : 'بانتظار رد العميل' %>
+                </span>
+                <% if (userRole === 'admin' || userRole === 'owner') { %>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item update-status" href="#" data-status="in_progress">
+                                    <i class="fas fa-play"></i>
+                                    بدء العمل
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item update-status" href="#" data-status="completed">
+                                    <i class="fas fa-check"></i>
+                                    إكمال التذكرة
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item update-status" href="#" data-status="closed">
+                                    <i class="fas fa-times"></i>
+                                    إغلاق التذكرة
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="chat-container" data-role="<%= userRole %>">
+            <div class="messages" id="messages">
+                <% ticket.messages.forEach(message => { %>
+                    <div class="message <%= message.sender ? (message.sender._id.toString() === userId ? 'message-out' : 'message-in') : '' %>"
+                         data-sender-role="<%= message.sender ? message.sender.role : 'system' %>"
+                         data-message-id="<%= message._id %>">
+                        <div class="message-content">
+                            <% if (message.sender && message.sender._id.toString() !== userId) { %>
+                                <div class="message-sender">
+                                    <%= message.sender.role === 'admin' || message.sender.role === 'owner' ? 'الدعم الفني' : message.sender.username %>
+                                </div>
+                            <% } %>
+                            <div class="message-text">
+                                <%= message.content %>
+                            </div>
+                            <% if (message.attachments && message.attachments.length > 0) { %>
+                                <div class="message-attachments">
+                                    <% message.attachments.forEach(attachment => { %>
+                                        <% if (attachment.type === 'image') { %>
+                                            <div class="attachment-image">
+                                                <img src="<%= attachment.url %>" alt="مرفق">
+                                            </div>
+                                        <% } %>
+                                    <% }); %>
+                                </div>
+                            <% } %>
+                            <div class="message-time">
+                                <%= new Date(message.createdAt).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) %>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+
+            <form id="messageForm" class="message-form">
+                <div class="input-group">
+                    <label class="btn btn-light message-attachment">
+                        <i class="fas fa-paperclip"></i>
+                        <input type="file" 
+                               id="attachment" 
+                               name="attachment" 
+                               accept="image/*"
+                               style="display: none"
+                               multiple>
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="messageInput" 
+                           placeholder="اكتب رسالتك هنا..."
+                           required>
+                    <button type="submit" class="btn btn-send">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- القياسات والمعلومات -->
+    <div class="row">
+        <!-- تفاصيل المنتج -->
+        <div class="col-lg-8 mb-4">
+            <div class="section-header d-flex align-items-center gap-2 mb-3">
+                <i class="fas fa-box"></i>
+                <h5 class="mb-0">تفاصيل المنتج</h5>
+            </div>
+            <% if (ticket.type === 'order' && ticket.order && ticket.order.products && ticket.order.products.length > 0 && ticket.order.products[0].product) { %>
+                <div class="product-details">
+                    <div class="product-image">
+                        <img src="<%= ticket.order.products[0].product.mainImage %>"
+                             alt="<%= ticket.order.products[0].product.name %>"
+                             onerror="this.src='/images/defaults/product.jpg'">
+                    </div>
+                    <div class="product-info">
+                        <div class="info-item">
+                            <div class="info-label">اسم المنتج</div>
+                            <div class="info-value"><%= ticket.order.products[0].product.name %></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">رمز المنتج</div>
+                            <div class="info-value"><%= ticket.order.products[0].product.productCode %></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">السعر</div>
+                            <div class="info-value"><%= ticket.order.products[0].price %> ل.س</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">الكمية</div>
+                            <div class="info-value"><%= ticket.order.products[0].quantity %></div>
+                        </div>
+                        <% if (ticket.order.products[0].product.description) { %>
+                            <div class="info-item">
+                                <div class="info-label">الوصف</div>
+                                <div class="info-value"><%= ticket.order.products[0].product.description %></div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            <% } else { %>
+                <!-- عرض القياسات للتذاكر من نوع تفصيل -->
+                <div class="measurements-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">محيط الصدر</div>
+                        <div class="measurement-value"><%= ticket.measurements.bust %> سم</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">محيط الخصر</div>
+                        <div class="measurement-value"><%= ticket.measurements.waist %> سم</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">محيط الأرداف</div>
+                        <div class="measurement-value"><%= ticket.measurements.hips %> سم</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">الطول الكامل</div>
+                        <div class="measurement-value"><%= ticket.measurements.length %> سم</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">طول الأكمام</div>
+                        <div class="measurement-value"><%= ticket.measurements.sleeves %> سم</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">عرض الأكتاف</div>
+                        <div class="measurement-value"><%= ticket.measurements.shoulders %> سم</div>
+                    </div>
+                </div>
+                <% if (ticket.measurements.notes) { %>
+                    <div class="measurement-notes mt-3">
+                        <div class="measurement-label">ملاحظات إضافية</div>
+                        <p><%= ticket.measurements.notes %></p>
+                    </div>
+                <% } %>
+            <% } %>
+        </div>
+
+        <!-- معلومات الطلب -->
+        <div class="col-lg-4 mb-4">
+            <div class="section-header d-flex align-items-center gap-2 mb-3">
+                <i class="fas fa-info-circle"></i>
+                <h5 class="mb-0">معلومات الطلب</h5>
+            </div>
+            <div class="info-list">
+                <div class="info-item">
+                    <div class="info-label">حالة الطلب</div>
+                    <div class="info-value">
+                        <span class="status-badge <%= getTicketBadgeClass(ticket.status) %>">
+                            <%= getTicketStatusText(ticket.status) %>
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">تاريخ الإنشاء</div>
+                    <div class="info-value"><%= new Date(ticket.createdAt).toLocaleDateString('ar-SA') %></div>
+                </div>
+                <% if (ticket.assignedTo) { %>
+                    <div class="info-item">
+                        <div class="info-label">المسؤول عن الطلب</div>
+                        <div class="info-value"><%= ticket.assignedTo.username %></div>
+                    </div>
+                <% } %>
+                <% if (userRole === 'admin' || userRole === 'owner') { %>
+                    <div class="info-item">
+                        <div class="info-label">البريد الإلكتروني</div>
+                        <div class="info-value"><%= ticket.user.email %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">رقم الهاتف</div>
+                        <div class="info-value" dir="ltr">
+                            <%= getCountryCode(ticket.user.phone.country) %>
+                            <%= ticket.user.phone.number %>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">العنوان</div>
+                        <div class="info-value"><%= ticket.user.address %></div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* المتغيرات */
+:root {
+    --primary: #E94D89;
+    --primary-light: #fce7ef;
+    --primary-dark: #d63f7a;
+    --gray-light: #f8f9fa;
+    --border-radius: 15px;
+    --chat-bg: #f0f2f5;
+    --message-out-bg: #E94D89;
+    --message-in-bg: #ffffff;
+    --message-system-bg: #edf2f7;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* المحادثة */
+.chat-container {
+    background: var(--chat-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.messages {
+    height: 500px;
+    overflow-y: auto;
+    padding: 1rem;
+    scroll-behavior: smooth;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.message {
+    display: flex;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+    width: 65%;
+    margin: 0.75rem 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message-out {
+    margin-left: auto;
+    padding-right: 0;
+}
+
+.message-in {
+    margin-right: auto;
+    padding-left: 0;
+}
+
+.message-content {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border-radius: 15px;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    min-width: 200px;
+}
+
+.message-out .message-content {
+    background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+
+.message-in .message-content {
+    background: var(--message-in-bg);
+    color: #1a1a1a;
+    border-bottom-left-radius: 5px;
+}
+
+.message-content:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.message-sender {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+.message-text {
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.message-time {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    opacity: 0.9;
+    text-align: left;
+    direction: ltr;
+}
+
+.message-out .message-time {
+    color: rgba(255, 255, 255, 0.95);
+    text-align: right;
+}
+
+/* رسائل النظام */
+[data-sender-role="system"] {
+    justify-content: center;
+    margin: 1.5rem 0;
+    width: 100%;
+}
+
+[data-sender-role="system"] .message-content {
+    background: linear-gradient(to right, var(--message-system-bg), #f7fafc);
+    color: #4a5568;
+    font-size: 0.9rem;
+    padding: 0.875rem 2rem;
+    border-radius: 25px;
+    max-width: 80%;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+[data-sender-role="system"] .message-time {
+    text-align: center;
+    color: #718096;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+/* نموذج إرسال الرسائل */
+.message-form {
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.message-form .input-group {
+    background: var(--gray-light);
+    border-radius: 25px;
+    padding: 0.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.message-form .form-control {
+    border: none;
+    background: transparent;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+}
+
+.message-form .form-control:focus {
+    box-shadow: none;
+}
+
+.message-attachment {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.message-attachment:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.btn-send {
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.btn-send:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+/* المرفقات */
+.message-attachments {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.attachment-image {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.attachment-image img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.attachment-image:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-md);
+}
+
+/* تحسينات للهواتف */
+@media (max-width: 768px) {
+    .messages {
+        height: 400px;
+    }
+
+    .message {
+        width: 75%;
+    }
+
+    .message-attachments {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+
+    .attachment-image img {
+        height: 120px;
+    }
+}
+
+/* القياسات والمعلومات */
+.measurements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.measurement-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.measurement-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.measurement-label {
+    color: var(--primary);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.measurement-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* معلومات الطلب */
+.info-list {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.info-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--primary-light);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: var(--primary);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.info-value {
+    font-weight: 500;
+}
+
+/* الشارات */
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.status-badge.warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.info {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+/* تفاصيل المنتج */
+.product-details {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    gap: 2rem;
+}
+
+.product-image {
+    flex: 0 0 300px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.product-image img {
+    width: 100%;
+    height: 300px;
+    object-fit: contain;
+    background-color: var(--gray-light);
+    transition: var(--transition);
+}
+
+.product-image:hover img {
+    transform: scale(1.05);
+}
+
+.product-info {
+    flex: 1;
+}
+
+.product-info .info-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--primary-light);
+}
+
+.product-info .info-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .product-details {
+        flex-direction: column;
+    }
+
+    .product-image {
+        flex: 0 0 auto;
+    }
+
+    .product-image img {
+        height: 200px;
+    }
+}
+</style>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+// إعداد Socket.IO
+const socket = io();
+const ticketId = window.location.pathname.split('/').pop();
+const userId = '<%= userId %>';
+const userRole = '<%= userRole %>';
+
+// متغيرات للتحكم في الاتصال
+let isConnected = false;
+let pendingMessages = [];
+
+// إعادة الاتصال تلقائياً
+socket.on('connect', function() {
+    console.log('تم الاتصال بالخادم');
+    isConnected = true;
+
+    // الانضمام إلى غرفة المحادثة
+    socket.emit('join-ticket', {
+        ticketId,
+        userId,
+        role: userRole
+    });
+
+    // إرسال الرسائل المعلقة
+    if (pendingMessages.length > 0) {
+        console.log('إرسال الرسائل المعلقة:', pendingMessages.length);
+        pendingMessages.forEach(msg => {
+            socket.emit('chat-message', msg);
+        });
+        pendingMessages = [];
+    }
+});
+
+socket.on('disconnect', function() {
+    console.log('تم قطع الاتصال');
+    isConnected = false;
+});
+
+// تأكيد الانضمام للغرفة
+socket.on('joined-ticket', function(data) {
+    console.log('تم الانضمام للغرفة:', data);
+});
+
+// الاستماع للرسائل الجديدة
+socket.on('chat-message', function(data) {
+    try {
+        console.log('تم استلام رسالة جديدة:', JSON.stringify(data, null, 2));
+        
+        // التحقق من صحة البيانات
+        if (!data.message || !data.message._id || !data.message.sender) {
+            console.error('بيانات الرسالة غير مكتملة:', data);
+            return;
+        }
+
+        // تجنب تكرار الرسائل
+        const messageElement = document.querySelector(`[data-message-id="${data.message._id}"]`);
+        if (messageElement) {
+            console.log('الرسالة موجودة بالفعل');
+            return;
+        }
+
+        // إضافة الرسالة للمحادثة
+        console.log('إضافة رسالة جديدة للمحادثة');
+        appendMessage(data);
+        
+        // تشغيل صوت تنبيه للرسائل الجديدة فقط إذا كانت من مستخدم آخر
+        if (data.message.sender._id !== userId) {
+            const audio = new Audio('/notification.mp3');
+            audio.play().catch(e => console.log('لا يمكن تشغيل الصوت:', e));
+
+            // تحديث حالة الرد
+            const statusBadge = document.querySelector('.status-badge');
+            if (statusBadge) {
+                const isSupportMessage = data.senderRole === 'admin' || data.senderRole === 'owner';
+                statusBadge.textContent = isSupportMessage ? 'بانتظار رد العميل' : 'بانتظار رد الدعم الفني';
+                statusBadge.className = `status-badge ${isSupportMessage ? 'info' : 'warning'}`;
+            }
+
+            // إرسال تأكيد استلام الرسالة
+            socket.emit('message-received-confirmation', {
+                messageId: data.message._id,
+                ticketId: data.ticketId
+            });
+        }
+        
+        // تمرير المحادثة للأسفل بشكل سلس
+        const messages = document.getElementById('messages');
+        messages.scrollTo({
+            top: messages.scrollHeight,
+            behavior: 'smooth'
+        });
+    } catch (error) {
+        console.error('خطأ في معالجة الرسالة:', error);
+    }
+});
+
+// إضافة رسالة جديدة للمحادثة
+function appendMessage(messageData) {
+    const messages = document.getElementById('messages');
+    const messageDiv = document.createElement('div');
+    const isSender = messageData.message.sender._id === userId;
+    
+    messageDiv.className = `message ${isSender ? 'message-out' : 'message-in'}`;
+    messageDiv.setAttribute('data-message-id', messageData.message._id);
+    messageDiv.setAttribute('data-sender-role', messageData.message.sender.role);
+    
+    let messageContent = `
+        <div class="message-content">
+            ${!isSender ? `
+                <div class="message-sender">
+                    ${messageData.message.sender.role === 'admin' || messageData.message.sender.role === 'owner' ? 'الدعم الفني' : messageData.message.sender.username}
+                </div>
+            ` : ''}
+            <div class="message-text">${messageData.message.content}</div>`;
+    
+    if (messageData.message.attachments && messageData.message.attachments.length > 0) {
+        messageContent += `
+            <div class="message-attachments">
+                ${messageData.message.attachments.map(attachment => `
+                    <div class="attachment-image">
+                        <img src="${attachment.url}" alt="مرفق">
+                    </div>
+                `).join('')}
+            </div>`;
+    }
+    
+    messageContent += `
+            <div class="message-time">
+                ${new Date(messageData.message.createdAt).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+        </div>`;
+    
+    messageDiv.innerHTML = messageContent;
+    messages.appendChild(messageDiv);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+// إرسال الرسالة
+document.getElementById('messageForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const messageInput = document.getElementById('messageInput');
+    const attachmentInput = document.getElementById('attachment');
+    
+    if (!messageInput.value.trim() && (!attachmentInput.files || attachmentInput.files.length === 0)) {
+        return;
+    }
+    
+    try {
+        // إضافة رسالة مؤقتة للواجهة
+        const tempId = 'temp-' + Date.now();
+        const tempMessage = {
+            message: {
+                _id: tempId,
+                content: messageInput.value,
+                sender: {
+                    _id: userId,
+                    username: '<%= currentUser %>',
+                    role: userRole
+                },
+                attachments: [],
+                createdAt: new Date(),
+                isRead: false
+            }
+        };
+        appendMessage(tempMessage);
+
+        // إعداد البيانات للإرسال
+        const formData = new FormData();
+        formData.append('content', messageInput.value);
+        for (const file of attachmentInput.files) {
+            formData.append('attachments', file);
+        }
+
+        // إرسال الرسالة للخادم
+        const response = await fetch(window.location.pathname + '/messages', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('فشل في إرسال الرسالة');
+        }
+
+        const serverResponse = await response.json();
+        console.log('استجابة الخادم:', serverResponse);
+
+        if (!serverResponse.data || !serverResponse.data.message) {
+            throw new Error('بيانات الرسالة غير صحيحة');
+        }
+
+        // إرسال الرسالة عبر Socket.IO
+        const messageData = {
+            ticketId,
+            message: {
+                ...serverResponse.data.message,
+                sender: {
+                    _id: userId,
+                    username: '<%= currentUser %>',
+                    role: userRole
+                }
+            },
+            replyStatus: serverResponse.data.replyStatus,
+            senderRole: userRole
+        };
+
+        // حذف الرسالة المؤقتة
+        const tempElement = document.querySelector(`[data-message-id="${tempId}"]`);
+        if (tempElement) {
+            tempElement.remove();
+        }
+
+        // إضافة الرسالة النهائية
+        appendMessage(messageData);
+
+        // إضافة الرسالة النهائية للواجهة مباشرة
+        appendMessage(messageData);
+
+        // إرسال الرسالة عبر Socket.IO
+        if (isConnected) {
+            console.log('إرسال رسالة جديدة:', messageData);
+            socket.emit('chat-message', messageData);
+
+            // تمرير المحادثة للأسفل بشكل سلس
+            const messages = document.getElementById('messages');
+            messages.scrollTo({
+                top: messages.scrollHeight,
+                behavior: 'smooth'
+            });
+        } else {
+            console.log('تخزين الرسالة للإرسال لاحقاً');
+            pendingMessages.push(messageData);
+        }
+
+        // مسح حقول الإدخال
+        messageInput.value = '';
+        attachmentInput.value = '';
+    } catch (error) {
+        console.error('خطأ في إرسال الرسالة:', error);
+        alert('حدث خطأ في إرسال الرسالة. الرجاء المحاولة مرة أخرى.');
+        
+        // حذف الرسالة المؤقتة في حالة الفشل
+        const tempElement = document.querySelector(`[data-message-id="temp-${Date.now()}"]`);
+        if (tempElement) {
+            tempElement.remove();
+        }
+    }
+});
+
+// تنظيف Socket.IO عند مغادرة الصفحة
+window.addEventListener('beforeunload', function() {
+    socket.emit('leave-ticket', {
+        ticketId,
+        userId,
+        role: userRole
+    });
+});
+
+// تحديث حالة التذكرة
+document.querySelectorAll('.update-status').forEach(link => {
+    link.addEventListener('click', async function(e) {
+        e.preventDefault();
+        const status = this.dataset.status;
+        
+        try {
+            const response = await fetch(window.location.pathname + '/status', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('فشل في تحديث حالة التذكرة');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('حدث خطأ في تحديث حالة التذكرة');
+        }
+    });
+});
+</script>
+
+<%- include('../partials/footer') %>

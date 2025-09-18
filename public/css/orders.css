@@ -1,0 +1,233 @@
+/* تنسيق صفحة الطلبات */
+.stats-card {
+    background: linear-gradient(135deg, var(--white) 0%, var(--bg-light) 100%);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: none;
+    overflow: hidden;
+    position: relative;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, var(--primary-color) 0%, transparent 100%);
+    opacity: 0.1;
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(233, 77, 137, 0.15);
+}
+
+.stats-card:hover::before {
+    opacity: 0.15;
+}
+
+.stats-card .card-title {
+    color: var(--gray);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.stats-card h3 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.stats-card i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+/* تنسيق الجداول */
+.orders-table {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.orders-table thead th {
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+    color: var(--white) !important;
+    font-weight: 600;
+    padding: 1rem;
+    border: none;
+}
+
+.orders-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.orders-table tbody tr:hover {
+    background-color: rgba(233, 77, 137, 0.05);
+}
+
+.orders-table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+/* تنسيق البطاقات */
+.main-card {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.main-card .card-header {
+    background: var(--white);
+    border-bottom: 2px solid var(--bg-light);
+    padding: 1.25rem;
+}
+
+.main-card .card-header h5 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin: 0;
+}
+
+/* تنسيق الشارات */
+.custom-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.badge-pending {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #856404;
+}
+
+.badge-approved {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #155724;
+}
+
+.badge-rejected {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #721c24;
+}
+
+.badge-completed {
+    background-color: rgba(108, 117, 125, 0.2);
+    color: #383d41;
+}
+
+.badge-in-progress {
+    background-color: rgba(233, 77, 137, 0.2);
+    color: var(--primary-color);
+}
+
+.badge-info {
+    background-color: rgba(13, 202, 240, 0.2);
+    color: #055160;
+}
+
+.badge-primary {
+    background-color: rgba(13, 110, 253, 0.2);
+    color: #084298;
+}
+
+/* تنسيق أيقونات الشارات */
+.custom-badge i {
+    font-size: 0.9rem;
+    margin-left: 0.25rem;
+}
+
+/* تنسيق القوائم */
+.product-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.product-list li {
+    padding: 0.25rem 0;
+    color: var(--gray);
+}
+
+.product-list li:not(:last-child) {
+    border-bottom: 1px solid var(--bg-light);
+}
+
+/* تنسيق الحالة الفارغة */
+.empty-state {
+    padding: 3rem 0;
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--primary-color);
+    opacity: 0.5;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h5 {
+    color: var(--gray);
+    margin-bottom: 1.5rem;
+}
+
+/* تنسيق الأزرار */
+.action-btn {
+    padding: 0.75rem 1.25rem;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+    border: none;
+    color: var(--white);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(233, 77, 137, 0.3);
+    text-decoration: none;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(233, 77, 137, 0.4);
+    background: linear-gradient(45deg, var(--primary-hover), var(--primary-color));
+    color: var(--white);
+    text-decoration: none;
+}
+
+.action-btn i {
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    margin-left: 0.25rem;
+}
+
+.action-btn:hover i {
+    transform: scale(1.1);
+}
+
+/* تنسيق زر تصفح المنتجات */
+.browse-products-btn {
+    background: linear-gradient(45deg, #6366f1, #8b5cf6);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.browse-products-btn:hover {
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    background: linear-gradient(45deg, #8b5cf6, #6366f1);
+}
+
+/* تنسيق أيقونة الزر */
+.action-btn i.fas {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}

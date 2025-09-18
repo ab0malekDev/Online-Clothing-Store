@@ -1,0 +1,296 @@
+<%- include('partials/header') %>
+
+<div class="search-page">
+    <div class="container">
+        <!-- رأس صفحة البحث -->
+        <div class="search-header">
+            <h1 class="search-title">نتائج البحث</h1>
+            <p class="search-query">
+                <span class="label">كلمة البحث:</span>
+                <%= query %>
+            </p>
+            <p class="results-count">
+                <% if (products.length === 0) { %>
+                    لم يتم العثور على نتائج
+                <% } else { %>
+                    تم العثور على <%= products.length %> نتيجة
+                <% } %>
+            </p>
+        </div>
+
+        <!-- نتائج البحث -->
+        <div class="search-results">
+            <% if (products.length > 0) { %>
+                <div class="row">
+                    <% products.forEach(function(product) { %>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="product-card" style="cursor: pointer;"
+                                 onclick="showProductModal('<%= encodeURIComponent(JSON.stringify(product)) %>')">
+                                <div class="product-image">
+                                    <img src="<%= product.mainImage %>" alt="<%= product.name %>">
+                                    <% if (!product.isAvailable) { %>
+                                        <div class="unavailable-overlay">
+                                            <span>غير متوفر</span>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <div class="card-body">
+                                    <div class="product-code"><%= product.productCode %></div>
+                                    <h3 class="product-name"><%= product.name %></h3>
+                                    <div class="product-category">
+                                        <i class="<%= product.category.icon %>"></i>
+                                        <%= product.category.name %>
+                                    </div>
+                                    <p class="product-description"><%= product.description %></p>
+                                    <div class="product-footer">
+                                        <div class="price"><%= product.price %> ل.س</div>
+                                        <% if (product.isRental && product.rentalPrice) { %>
+                                            <div class="rental-price">
+                                                <span class="label">للإيجار:</span>
+                                                <%= product.rentalPrice %> ل.س
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="no-results">
+                    <div class="no-results-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <p class="no-results-message">لم يتم العثور على نتائج مطابقة لبحثك</p>
+                    <div class="no-results-actions">
+                        <a href="/" class="btn btn-primary">
+                            <i class="fas fa-home"></i>
+                            العودة للصفحة الرئيسية
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<style>
+.search-page {
+    padding: 4rem 0;
+    background-color: var(--bg-light);
+    min-height: calc(100vh - 70px);
+}
+
+.search-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.search-title {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.search-query {
+    color: #666;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.search-query .label {
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.results-count {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.product-card {
+    display: block;
+    text-decoration: none;
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(233, 77, 137, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(233, 77, 137, 0.2);
+}
+
+.product-image {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: white;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.1);
+}
+
+.unavailable-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.product-code {
+    display: inline-block;
+    background: var(--bg-light);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.product-name {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.product-category {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.product-category i {
+    color: var(--primary-color);
+}
+
+.product-description {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.product-footer {
+    margin-top: auto;
+}
+
+.price {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.rental-price {
+    color: #666;
+    font-size: 1rem;
+}
+
+.rental-price .label {
+    font-weight: 600;
+    margin-left: 0.25rem;
+}
+
+.no-results {
+    text-align: center;
+    padding: 4rem 0;
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.no-results-message {
+    color: #666;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.no-results-actions {
+    display: flex;
+    justify-content: center;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .search-page {
+        padding: 2rem 0;
+    }
+
+    .search-title {
+        font-size: 2rem;
+    }
+
+    .product-image {
+        height: 300px;
+    }
+}
+</style>
+
+<!-- تضمين نافذة تفاصيل المنتج -->
+<%- include('partials/product-modal') %>
+
+<!-- تضمين ملف JavaScript للنافذة المنبثقة -->
+<script src="/js/product-modal.js"></script>
+
+<!-- تعريف متغيرات الاتصال -->
+<script>
+const whatsappNumber = '<%= whatsappNumber %>';
+const contactPhone = '<%= contactPhone %>';
+</script>
+
+<%- include('partials/footer') %>

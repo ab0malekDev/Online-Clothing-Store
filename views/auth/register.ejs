@@ -1,0 +1,172 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h3 class="card-title text-center mb-0">تسجيل حساب جديد</h3>
+                </div>
+                <div class="card-body">
+                    <form action="/auth/register" method="POST">
+                        <!-- البريد الإلكتروني -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">البريد الإلكتروني</label>
+                            <input type="email"
+                                   class="form-control"
+                                   id="email"
+                                   name="email"
+                                   required>
+                        </div>
+
+                        <!-- اسم المستخدم -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">اسم المستخدم</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="username"
+                                   name="username"
+                                   required>
+                        </div>
+
+                        <!-- كلمة المرور -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label">كلمة المرور</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password" 
+                                   name="password" 
+                                   required>
+                        </div>
+
+                        <!-- تأكيد كلمة المرور -->
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">تأكيد كلمة المرور</label>
+                            <input type="password"
+                                   class="form-control"
+                                   id="confirmPassword"
+                                   name="confirmPassword"
+                                   required>
+                        </div>
+
+                        <!-- رقم الهاتف -->
+                        <div class="mb-3">
+                            <label class="form-label">رقم الهاتف</label>
+                            <div class="row">
+                                <div class="col-4">
+                                    <select class="form-select" name="phone[country]" required>
+                                        <option value="">اختر الدولة</option>
+                                        <option value="SY">سوريا (+963)</option>
+                                        <option value="LB">لبنان (+961)</option>
+                                        <option value="JO">الأردن (+962)</option>
+                                        <option value="EG">مصر (+20)</option>
+                                        <option value="SA">السعودية (+966)</option>
+                                        <option value="AE">الإمارات (+971)</option>
+                                        <option value="KW">الكويت (+965)</option>
+                                        <option value="QA">قطر (+974)</option>
+                                        <option value="BH">البحرين (+973)</option>
+                                        <option value="OM">عمان (+968)</option>
+                                        <option value="IQ">العراق (+964)</option>
+                                    </select>
+                                </div>
+                                <div class="col-8">
+                                    <input type="tel"
+                                           class="form-control"
+                                           name="phone[number]"
+                                           placeholder="أدخل رقم الهاتف"
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- العنوان -->
+                        <div class="mb-3">
+                            <label for="address" class="form-label">العنوان</label>
+                            <textarea class="form-control"
+                                      id="address"
+                                      name="address"
+                                      rows="2"
+                                      placeholder="أدخل عنوانك الحالي"
+                                      required></textarea>
+                        </div>
+
+                        <!-- زر التسجيل -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>
+                                تسجيل حساب جديد
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- رابط تسجيل الدخول -->
+                    <div class="text-center mt-3">
+                        <p class="mb-0">
+                            لديك حساب بالفعل؟
+                            <a href="/auth/login" class="text-primary">تسجيل الدخول</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(233, 77, 137, 0.1);
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.card-title {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.form-label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.form-control {
+    border-radius: 10px;
+    border: 1px solid rgba(233, 77, 137, 0.2);
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(233, 77, 137, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #E94D89, #d63f7a);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #d63f7a, #E94D89);
+    transform: translateY(-2px);
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+    text-decoration: none;
+}
+
+.text-primary:hover {
+    text-decoration: underline;
+}
+</style>
+
+<%- include('../partials/footer') %>

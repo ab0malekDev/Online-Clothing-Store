@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | لمسات بوتيك</title>
+    
+    <!-- Bootstrap RTL -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts - Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css">
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #E94D89;
+            --primary-hover: #d63f7a;
+            --bg-color: #FFD4C9;
+            --bg-light: #FFE4E0;
+            --white: #FFFFFF;
+            --black: #000000;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            padding-top: 100px;
+        }
+
+        .navbar {
+            background-color: var(--bg-light);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--black) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem !important;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color) !important;
+        }
+
+        .nav-link i {
+            margin-left: 0.5rem;
+        }
+
+        .auth-link {
+            background-color: var(--primary-color);
+            color: var(--white) !important;
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .auth-link:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- القائمة العلوية -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">لمسات بوتيك</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link <%= currentPage === 'home' ? 'active' : '' %>" href="/">
+                            <i class="fas fa-home"></i>
+                            الرئيسية
+                        </a>
+                    </li>
+                    <% categories.forEach(function(category) { %>
+                        <li class="nav-item">
+                            <a class="nav-link <%= currentPage === category.slug ? 'active' : '' %>"
+                               href="/category/<%= category.slug %>">
+                                <i class="<%= category.icon %>"></i>
+                                <%= category.name %>
+                            </a>
+                        </li>
+                    <% }); %>
+                </ul>
+                <ul class="navbar-nav">
+                    <% if (isAuthenticated) { %>
+                        <% if (userRole === 'owner' || userRole === 'admin') { %>
+                            <li class="nav-item">
+                                <a class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>" href="/dashboard">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    لوحة التحكم
+                                </a>
+                            </li>
+                        <% } else { %>
+                            <li class="nav-item">
+                                <a class="nav-link <%= currentPage === 'orders' ? 'active' : '' %>" href="/orders">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    الطلبات
+                                </a>
+                            </li>
+                        <% } %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/logout">
+                                <i class="fas fa-sign-out-alt"></i>
+                                تسجيل الخروج
+                            </a>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a class="nav-link auth-link" href="/auth/login">
+                                <i class="fas fa-sign-in-alt"></i>
+                                تسجيل الدخول
+                            </a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <a class="nav-link auth-link" href="/auth/register">
+                                <i class="fas fa-user-plus"></i>
+                                تسجيل جديد
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- محتوى الصفحة -->
+    <div class="main-content">
+        <% if (success_msg && success_msg.length > 0) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <%= success_msg %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+
+        <% if (error_msg && error_msg.length > 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <%= error_msg %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>

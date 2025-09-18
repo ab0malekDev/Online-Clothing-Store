@@ -1,0 +1,198 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/orders.css">
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- زر تفصيل فستان -->
+            <div class="mb-4 text-end">
+                <a href="/tickets/new" class="btn btn-primary action-btn">
+                    <i class="fas fa-tshirt text-white"></i>
+                    تفصيل فستان جديد
+                </a>
+            </div>
+
+            <!-- إحصائيات سريعة -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card stats-card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                الطلبات
+                            </h5>
+                            <h3 class="mb-0"><%= orders ? orders.length : 0 %></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card stats-card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-comments me-2"></i>
+                                تذاكر التفصيل
+                            </h5>
+                            <h3 class="mb-0"><%= tickets ? tickets.length : 0 %></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قائمة الطلبات -->
+            <div class="card main-card">
+                <div class="card-header">
+                    <h5 class="card-title">الطلبات الحالية</h5>
+                </div>
+                <div class="card-body p-0">
+                    <% if (orders && orders.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table orders-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>رقم الطلب</th>
+                                        <th>المنتجات</th>
+                                        <th>السعر الإجمالي</th>
+                                        <th>الحالة</th>
+                                        <th>تاريخ الطلب</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% orders.forEach(order => { %>
+                                        <tr>
+                                            <td>#<%= order._id.toString().slice(-6).toUpperCase() %></td>
+                                            <td>
+                                                <ul class="product-list">
+                                                    <% order.products.forEach(item => { %>
+                                                        <li>
+                                                            <%= item.product.name %> × <%= item.quantity %>
+                                                            <% if (item.isRental) { %>
+                                                                <small class="text-muted">
+                                                                    (إيجار لمدة <%= item.rentalDays %> يوم)
+                                                                </small>
+                                                            <% } %>
+                                                        </li>
+                                                    <% }); %>
+                                                </ul>
+                                            </td>
+                                            <td><%= order.totalPrice %> ل.س</td>
+                                            <td>
+                                                <span class="custom-badge <%= `badge-${order.status}` %>">
+                                                    <%= getStatusText(order.status) %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <%= new Date(order.createdAt).toLocaleDateString('ar-SA') %>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h5>لا يوجد لديك طلبات حالياً</h5>
+                            <a href="/" class="btn btn-primary action-btn">
+                                <i class="fas fa-shopping-bag text-white"></i>
+                                تصفح المنتجات
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- قائمة تذاكر التفصيل -->
+            <div class="card main-card">
+                <div class="card-header">
+                    <h5 class="card-title">تذاكر التفصيل</h5>
+                </div>
+                <div class="card-body p-0">
+                    <% if (tickets && tickets.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table orders-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>رقم التذكرة</th>
+                                        <th>العنوان</th>
+                                        <th>النوع</th>
+                                        <th>الحالة</th>
+                                        <th>آخر تحديث</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% tickets.forEach(ticket => { %>
+                                        <tr>
+                                            <td>#<%= ticket._id.toString().slice(-6).toUpperCase() %></td>
+                                            <td><%= ticket.title %></td>
+                                            <td>
+                                                <% if (ticket.type === 'order') { %>
+                                                    <span class="custom-badge badge-info">
+                                                        <i class="fas fa-shopping-cart me-1"></i>
+                                                        طلب منتج
+                                                    </span>
+                                                <% } else { %>
+                                                    <span class="custom-badge badge-primary">
+                                                        <i class="fas fa-tshirt me-1"></i>
+                                                        تفصيل فستان
+                                                    </span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <span class="custom-badge <%= `badge-${ticket.status === 'in_progress' ? 'in-progress' : ticket.status}` %>">
+                                                    <%= getTicketStatusText(ticket.status) %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <%= new Date(ticket.lastMessage).toLocaleDateString('ar-SA') %>
+                                            </td>
+                                            <td>
+                                                <a href="/tickets/<%= ticket._id %>" class="btn btn-primary btn-sm action-btn">
+                                                    <i class="fas fa-comments text-white"></i>
+                                                    عرض المحادثة
+                                                </a>
+                                                <% if (ticket.type === 'order' && ticket.order) { %>
+                                                    <span class="ms-2 text-muted">
+                                                        (طلب #<%= ticket.order._id.toString().slice(-6).toUpperCase() %>)
+                                                    </span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i class="fas fa-comments"></i>
+                            <h5>لا يوجد لديك تذاكر تفصيل حالياً</h5>
+                            <a href="/tickets/new" class="btn btn-primary action-btn">
+                                <i class="fas fa-tshirt text-white"></i>
+                                تفصيل فستان جديد
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function getBadgeClass(status) {
+    switch (status) {
+        case 'pending':
+            return 'badge-pending';
+        case 'approved':
+            return 'badge-approved';
+        case 'rejected':
+            return 'badge-rejected';
+        case 'completed':
+            return 'badge-completed';
+        default:
+            return 'badge-completed';
+    }
+}
+</script>
+
+<%- include('../partials/footer') %>

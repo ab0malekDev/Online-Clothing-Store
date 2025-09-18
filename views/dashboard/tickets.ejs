@@ -1,0 +1,587 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- إحصائيات سريعة -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>تذاكر التفصيل</h3>
+                            <div class="stat-value"><%= designTickets.length %></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>في الانتظار</h3>
+                            <div class="stat-value">
+                                <%= designTickets.filter(ticket => ticket.status === 'pending').length %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>قيد التنفيذ</h3>
+                            <div class="stat-value">
+                                <%= designTickets.filter(ticket => ticket.status === 'in_progress').length %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>مكتملة</h3>
+                            <div class="stat-value">
+                                <%= designTickets.filter(ticket => ticket.status === 'completed').length %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- إحصائيات تذاكر الطلبات -->
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>تذاكر الطلبات</h3>
+                            <div class="stat-value"><%= orderTickets.length %></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قائمة تذاكر التفصيل -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">تذاكر التفصيل</h5>
+                        <div class="d-flex gap-2">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="fas fa-filter"></i>
+                                    فلترة
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item filter-status" href="#" data-status="all">الكل</a></li>
+                                    <li><a class="dropdown-item filter-status" href="#" data-status="pending">في الانتظار</a></li>
+                                    <li><a class="dropdown-item filter-status" href="#" data-status="in_progress">قيد التنفيذ</a></li>
+                                    <li><a class="dropdown-item filter-status" href="#" data-status="completed">مكتملة</a></li>
+                                    <li><a class="dropdown-item filter-status" href="#" data-status="closed">مغلقة</a></li>
+                                </ul>
+                            </div>
+                            <div class="search-box">
+                                <input type="text" id="searchInput" placeholder="بحث في التذاكر..." class="form-control">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>رقم التذكرة</th>
+                                    <th>العميل</th>
+                                    <th>العنوان</th>
+                                    <th>الحالة</th>
+                                    <th>آخر تحديث</th>
+                                    <th>تاريخ الإنشاء</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% designTickets.forEach(ticket => { %>
+                                    <tr data-status="<%= ticket.status %>">
+                                        <td>#<%= ticket._id.toString().slice(-6).toUpperCase() %></td>
+                                        <td><%= ticket.user.username %></td>
+                                        <td><%= ticket.title %></td>
+                                        <td>
+                                            <span class="badge <%= getTicketBadgeClass(ticket.status) %>">
+                                                <%= getTicketStatusText(ticket.status) %>
+                                            </span>
+                                        </td>
+                                        <td><%= new Date(ticket.lastMessage).toLocaleDateString('ar-SA') %></td>
+                                        <td><%= new Date(ticket.createdAt).toLocaleDateString('ar-SA') %></td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <a href="/tickets/<%= ticket._id %>" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                    عرض
+                                                </a>
+                                                <div class="dropdown">
+                                                    <button type="button" class="btn btn-sm btn-light" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item update-status" href="#" 
+                                                           data-ticket-id="<%= ticket._id %>"
+                                                           data-status="in_progress">
+                                                            <i class="fas fa-play text-primary"></i>
+                                                            بدء العمل
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item update-status" href="#"
+                                                           data-ticket-id="<%= ticket._id %>"
+                                                           data-status="completed">
+                                                            <i class="fas fa-check text-success"></i>
+                                                            إكمال التذكرة
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item update-status" href="#"
+                                                           data-ticket-id="<%= ticket._id %>"
+                                                           data-status="closed">
+                                                            <i class="fas fa-times text-danger"></i>
+                                                            إغلاق التذكرة
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item text-danger delete-ticket" href="#"
+                                                           data-ticket-id="<%= ticket._id %>">
+                                                            <i class="fas fa-trash"></i>
+                                                            حذف التذكرة
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قائمة تذاكر الطلبات -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">تذاكر الطلبات</h5>
+                        <div class="d-flex gap-2">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="fas fa-filter"></i>
+                                    فلترة
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item filter-status" href="#" data-status="all">الكل</a></li>
+                                    <li><a class="dropdown-item filter-status" href="#" data-status="pending">في الانتظار</a></li>
+                                    <li><a class="dropdown-item filter-status" href="#" data-status="in_progress">قيد التنفيذ</a></li>
+                                    <li><a class="dropdown-item filter-status" href="#" data-status="completed">مكتملة</a></li>
+                                    <li><a class="dropdown-item filter-status" href="#" data-status="closed">مغلقة</a></li>
+                                </ul>
+                            </div>
+                            <div class="search-box">
+                                <input type="text" id="searchOrderTickets" placeholder="بحث في تذاكر الطلبات..." class="form-control">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>رقم التذكرة</th>
+                                    <th>العميل</th>
+                                    <th>رقم الطلب</th>
+                                    <th>المنتج</th>
+                                    <th>الحالة</th>
+                                    <th>آخر تحديث</th>
+                                    <th>تاريخ الإنشاء</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% orderTickets.forEach(ticket => { %>
+                                    <tr data-status="<%= ticket.status %>">
+                                        <td>#<%= ticket._id.toString().slice(-6).toUpperCase() %></td>
+                                        <td><%= ticket.user.username %></td>
+                                        <td>#<%= ticket.order._id.toString().slice(-6).toUpperCase() %></td>
+                                        <td><%= ticket.title %></td>
+                                        <td>
+                                            <span class="badge <%= getTicketBadgeClass(ticket.status) %>">
+                                                <%= getTicketStatusText(ticket.status) %>
+                                            </span>
+                                        </td>
+                                        <td><%= new Date(ticket.lastMessage).toLocaleDateString('ar-SA') %></td>
+                                        <td><%= new Date(ticket.createdAt).toLocaleDateString('ar-SA') %></td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <a href="/tickets/<%= ticket._id %>" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                    عرض
+                                                </a>
+                                                <div class="dropdown">
+                                                    <button type="button" class="btn btn-sm btn-light" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class="dropdown-item update-status" href="#"
+                                                               data-ticket-id="<%= ticket._id %>"
+                                                               data-status="in_progress">
+                                                                <i class="fas fa-play text-primary"></i>
+                                                                بدء العمل
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item update-status" href="#"
+                                                               data-ticket-id="<%= ticket._id %>"
+                                                               data-status="completed">
+                                                                <i class="fas fa-check text-success"></i>
+                                                                إكمال التذكرة
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item update-status" href="#"
+                                                               data-ticket-id="<%= ticket._id %>"
+                                                               data-status="closed">
+                                                                <i class="fas fa-times text-danger"></i>
+                                                                إغلاق التذكرة
+                                                            </a>
+                                                        </li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger delete-ticket" href="#"
+                                                               data-ticket-id="<%= ticket._id %>">
+                                                                <i class="fas fa-trash"></i>
+                                                                حذف التذكرة
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 5px 20px rgba(233, 77, 137, 0.1);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(233, 77, 137, 0.2);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--bg-light);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.stat-info h3 {
+    color: #666;
+    font-size: 1rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.stat-value {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.search-box {
+    position: relative;
+    max-width: 300px;
+    width: 100%;
+}
+
+.search-box input {
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    border: 2px solid var(--bg-light);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(233, 77, 137, 0.25);
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown .btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.dropdown .btn:hover {
+    background-color: var(--bg-light);
+}
+
+.dropdown-menu {
+    min-width: 200px;
+    padding: 0.5rem;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    position: absolute !important;
+    right: 0;
+    top: 100%;
+    margin-top: 0.5rem !important;
+    transform: none !important;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+    background: white;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.table-responsive {
+    overflow: visible !important;
+}
+
+.card {
+    overflow: visible !important;
+}
+
+.table td {
+    position: relative;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: var(--bg-light);
+}
+
+.dropdown-item i {
+    width: 20px;
+    text-align: center;
+    margin-left: 0.5rem;
+}
+
+.dropdown-divider {
+    margin: 0.5rem 0;
+    border-color: var(--bg-light);
+}
+
+.btn-group .btn {
+    border-radius: 10px;
+}
+
+.btn-group .btn:not(:last-child) {
+    border-top-right-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
+}
+
+.btn-group .btn:not(:first-child) {
+    border-top-left-radius: 10px !important;
+    border-bottom-left-radius: 10px !important;
+}
+</style>
+
+<script>
+// البحث في تذاكر التفصيل
+const searchInput = document.getElementById('searchInput');
+const designTableRows = document.querySelectorAll('.card:nth-of-type(1) tbody tr');
+
+searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    
+    designTableRows.forEach(row => {
+        const ticketId = row.querySelector('td:first-child').textContent.toLowerCase();
+        const username = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const title = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        
+        if (ticketId.includes(searchTerm) ||
+            username.includes(searchTerm) ||
+            title.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// البحث في تذاكر الطلبات
+const searchOrderInput = document.getElementById('searchOrderTickets');
+const orderTableRows = document.querySelectorAll('.card:nth-of-type(2) tbody tr');
+
+searchOrderInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    
+    orderTableRows.forEach(row => {
+        const ticketId = row.querySelector('td:first-child').textContent.toLowerCase();
+        const username = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const orderId = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        const title = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+        
+        if (ticketId.includes(searchTerm) ||
+            username.includes(searchTerm) ||
+            orderId.includes(searchTerm) ||
+            title.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// فلترة تذاكر التفصيل حسب الحالة
+document.querySelectorAll('.card:nth-of-type(1) .filter-status').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const status = this.dataset.status;
+        
+        designTableRows.forEach(row => {
+            if (status === 'all' || row.dataset.status === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+
+// فلترة تذاكر الطلبات حسب الحالة
+document.querySelectorAll('.card:nth-of-type(2) .filter-status').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const status = this.dataset.status;
+        
+        orderTableRows.forEach(row => {
+            if (status === 'all' || row.dataset.status === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+
+// تحديث حالة التذكرة
+document.querySelectorAll('.update-status').forEach(link => {
+    link.addEventListener('click', async function(e) {
+        e.preventDefault();
+        const ticketId = this.dataset.ticketId;
+        const status = this.dataset.status;
+        
+        try {
+            const response = await fetch(`/tickets/${ticketId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('فشل في تحديث حالة التذكرة');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('حدث خطأ في تحديث حالة التذكرة');
+        }
+    });
+});
+
+// حذف التذكرة
+document.querySelectorAll('.delete-ticket').forEach(link => {
+    link.addEventListener('click', async function(e) {
+        e.preventDefault();
+        if (!confirm('هل أنت متأكد من حذف هذه التذكرة؟')) return;
+
+        const ticketId = this.dataset.ticketId;
+        
+        try {
+            const response = await fetch(`/tickets/${ticketId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('فشل في حذف التذكرة');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('حدث خطأ في حذف التذكرة');
+        }
+    });
+});
+</script>
+
+<%- include('../partials/footer') %>

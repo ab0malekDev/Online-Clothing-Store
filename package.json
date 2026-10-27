@@ -28,7 +28,7 @@
     "nodemon": "^2.0.20"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": "20.x"
   },
   "author": "لمسات بوتيك",
   "license": "ISC"
